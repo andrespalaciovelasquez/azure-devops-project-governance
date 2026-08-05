@@ -27,12 +27,6 @@ stages:
       - job: Plan
         displayName: 'Format, Validate and Generate Plan'
         steps:
-          - script: |
-              echo "SourceBranch=$(Build.SourceBranch)"
-              echo "SourceBranchName=$(Build.SourceBranchName)"
-              echo "Reason=$(Build.Reason)"
-            displayName: 'Debug build variables'
-
           - task: TerraformInstaller@1
             displayName: 'Instalar Terraform'
             inputs:
@@ -61,7 +55,7 @@ stages:
   - stage: Terraform_Apply
     displayName: 'Terraform Apply'
     dependsOn: Validate_And_Plan
-    condition: and(succeeded(), or(eq(variables['Build.SourceBranchName'], 'main'), eq(variables['Build.SourceBranch'], 'refs/heads/main')), ne(variables['Build.Reason'], 'PullRequest'))
+    condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'main'), ne(variables['Build.Reason'], 'PullRequest'))
     jobs:
       - job: Apply
         displayName: 'Apply Changes to Azure'
