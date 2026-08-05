@@ -55,7 +55,7 @@ stages:
   - stage: Terraform_Apply
     displayName: 'Terraform Apply'
     dependsOn: Validate_And_Plan
-    condition: aand(succeeded(), endsWith(variables['Build.SourceBranch'], 'main'), ne(variables['Build.Reason'], 'PullRequest'))
+    condition: and(succeeded(), endsWith(variables['Build.SourceBranch'], 'main'), ne(variables['Build.Reason'], 'PullRequest'))
     jobs:
       - job: Apply
         displayName: 'Apply Changes to Azure'
