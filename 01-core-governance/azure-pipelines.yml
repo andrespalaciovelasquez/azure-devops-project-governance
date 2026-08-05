@@ -27,6 +27,11 @@ stages:
       - job: Plan
         displayName: 'Format, Validate and Generate Plan'
         steps:
+          - task: TerraformInstaller@1
+              displayName: 'Instalar Terraform'
+              inputs:
+                terraformVersion: 'latest'
+                
           - task: AzureCLI@2
             displayName: 'Terraform Checks & Plan'
             inputs:
@@ -55,6 +60,11 @@ stages:
       - job: Apply
         displayName: 'Apply Changes to Azure'
         steps:
+          - task: TerraformInstaller@1
+            displayName: 'Instalar Terraform'
+            inputs:
+              terraformVersion: 'latest'
+
           - task: AzureCLI@2
             displayName: 'Terraform Apply'
             inputs:
