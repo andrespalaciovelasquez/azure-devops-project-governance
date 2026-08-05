@@ -19,9 +19,9 @@ resource "azurerm_role_assignment" "admin_contributor" {
 }
 
 resource "azurerm_role_assignment" "uami_tfstate_contributor" {
-  scope                = azurerm_storage_account.tfstate.id
+  scope                = azurerm_storage_account.sa_tfstate.id
   role_definition_name = "Storage Blob Data Contributor"
-  principal_id         = azurerm_user_assigned_identity.platform_core.principal_id
+  principal_id         = azurerm_user_assigned_identity.uami_platform_admin.principal_id
 }
 
 # 2. IDENTIDADES DINÁMICAS POR PROYECTO (Ej: ecommerce)
