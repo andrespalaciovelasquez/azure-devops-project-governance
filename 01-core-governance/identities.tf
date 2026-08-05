@@ -18,6 +18,12 @@ resource "azurerm_role_assignment" "admin_contributor" {
   principal_id         = azurerm_user_assigned_identity.uami_platform_admin.principal_id
 }
 
+resource "azurerm_role_assignment" "admin_rbac_admin" {
+  scope                = data.azurerm_subscription.current.id
+  role_definition_name = "Role Based Access Control Administrator"
+  principal_id         = azurerm_user_assigned_identity.uami_platform_admin.principal_id
+}
+
 resource "azurerm_role_assignment" "uami_tfstate_contributor" {
   scope                = azurerm_storage_account.sa_tfstate.id
   role_definition_name = "Storage Blob Data Contributor"
