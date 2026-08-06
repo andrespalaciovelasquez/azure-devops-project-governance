@@ -50,6 +50,6 @@ resource "azurerm_role_assignment" "projects_contributor" {
 resource "azurerm_role_assignment" "projects_storage_blob_owner" {
   for_each             = var.projects
   scope                = azurerm_storage_account.sa_tfstate.id
-  role_definition_name = "Storage Bl ob Data Owner"
+  role_definition_name = "Storage Blob Data Owner"
   principal_id         = azurerm_user_assigned_identity.uami_projects[each.key].principal_id
 }
