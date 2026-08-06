@@ -15,16 +15,30 @@ resource "azurerm_federated_identity_credential" "wif_core" {
   subject             = "sc://https://dev.azure.com/${var.azure_devops_org}/${var.azure_devops_project}/repo/${var.azure_devops_repo}"
 }
 
-# 2. WIF DINÁMICO PARA LOS PROYECTOS (Llaves de Inquilinos)
-# Se crean automáticamente cuando se añade un proyecto al catálogo en variables.tf
-resource "azurerm_federated_identity_credential" "wif_projects_main" {
+# 2A. WIF DINÁMICO PARA LOS REPOS DE INFRAESTRUCTURA (Ej: Repo 2A)
+resource "azurerm_federated_identity_credential" "wif_projects_infra" {
   for_each            = var.projects
 
-  name                = "fic-azuredevops-${each.key}-main"
+  name                = "fic-azuredevops-${each.key}-infra"
   resource_group_name = azurerm_resource_group.rg_core.name
   audience            = ["api://AzureADTokenExchange"]
   issuer              = "https://vstoken.dev.azure.com/${var.azure_devops_org}"
   parent_id           = azurerm_user_assigned_identity.uami_projects[each.key].id
   
-  subject             = "sc://https://dev.azure.com/${var.azure_devops_org}/${each.value.azure_devops_project}/repo/${each.value.azure_devops_repo}"
+  # Apunta al nombre del repositorio de infraestructura
+  subject             = "sc://https://dev.azure.com/${var.azure_devops_org}/${each.value.azure_devops_project}/repo/${each.value.infra_repo}"
+}
+
+# 2B. WIF DINÁMICO PARA LOS REPOS DE CÓDIGO (Ej: Repo 2B)
+resource "azurerm_federated_identity_credential" "wif_projects_code" {
+  for_each            = var.projects
+
+  name                = "fic-azuredevops-${each.key}-code"
+  resource_group_name = azurerm_resource_group.rg_core.name
+  audience            = ["api://AzureADTokenExchange"]
+  issuer              = "https://vstoken.dev.azure.com/${var.azure_devops_org}"
+  parent_id           = azurerm_user_assigned_identity.uami_projects[each.key].id
+  
+  # Apunta al nombre del repositorio de código del aplicativo
+  subject             = "sc://https://dev.azure.com/${var.azure_devops_org}/${each.value.azure_devops_project}/repo/${each.value.code_repo}"
 }

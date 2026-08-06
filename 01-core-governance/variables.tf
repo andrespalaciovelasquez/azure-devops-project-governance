@@ -42,9 +42,15 @@ variable "azure_devops_repo" {
 variable "projects" {
   type = map(object({
     azure_devops_project = string
-    azure_devops_repo    = string
-    service_connection   = string
+    infra_repo           = string
+    code_repo            = string
   }))
-  description = "Mapa de proyectos que requieren identidades y permisos WIF"
-  default = {}
+  description = "Mapa de proyectos que requieren identidades y permisos WIF duales"
+  default = {
+    "ecommerce" = {
+      azure_devops_project = "SandboxPalacio"
+      infra_repo           = "infra-app-ecommerce"
+      code_repo            = "app-ecommerce-code"
+    }
+  }
 }
