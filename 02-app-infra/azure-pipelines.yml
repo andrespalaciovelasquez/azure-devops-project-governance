@@ -1,0 +1,75 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - name: azureServiceConnection
+    value: 'sc-ecommerce-prod'
+
+stages:
+  # STAGE 1: Valida, Formatea y Planifica (Corre tanto en PRs como en Pushes a main)
+  - stage: Validate_And_Plan
+    displayName: 'Terraform Format, Validate & Plan'
+    jobs:
+      - job: Plan
+        displayName: 'Format, Validate and Generate Plan'
+        steps:
+          - task: TerraformInstaller@1
+            displayName: 'Instalar Terraform'
+            inputs:
+                terraformVersion: 'latest'
+
+          - task: AzureCLI@2
+            displayName: 'Terraform Checks & Plan'
+            inputs:
+              azureSubscription: '$(azureServiceConnection)'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                echo "--- 1. Verificando formato de Terraform (fmt) ---"
+                terraform fmt -check -recursive
+
+                echo "--- 2. Inicializando Terraform ---"
+                terraform init
+
+                echo "--- 3. Validando sintaxis ---"
+                terraform validate
+
+                echo "--- 4. Generando Plan ---"
+                terraform plan -out=tfplan
+
+  # STAGE 2: Aplica los cambios EXCLUSIVAMENTE cuando se hace Merge a la rama main
+  - stage: Terraform_Apply
+    displayName: 'Terraform Apply'
+    dependsOn: Validate_And_Plan
+    condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'main'), ne(variables['Build.Reason'], 'PullRequest'))
+    jobs:
+      - job: Apply
+        displayName: 'Apply Changes to Azure'
+        steps:
+          - task: TerraformInstaller@1
+            displayName: 'Instalar Terraform'
+            inputs:
+              terraformVersion: 'latest'
+
+          - task: AzureCLI@2
+            displayName: 'Terraform Apply'
+            inputs:
+              azureSubscription: '$(azureServiceConnection)'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                echo "--- 1. Inicializando Terraform para Aplicar ---"
+                terraform init
+
+                echo "--- 2. Aplicando los cambios aprobados ---"
+                terraform apply -auto-approve
