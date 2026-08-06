@@ -5,7 +5,8 @@
 locals {
   prefix = "${var.project_name}-${var.environment}"  
   rg_name      = "rg-${local.prefix}-${var.location}"
-
+  acr_name = "acr${var.project_name}${var.environment}"
+  
   common_tags = {
     Environment = var.environment
     Project     = var.project_name
