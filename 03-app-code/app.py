@@ -5,5 +5,12 @@ app = Flask(__name__)
 def hello():
     return "¡Hola desde Flask desplegado con GitOps y WIF en Azure DevOps!"
 
+@app.route("/")
+def health_check():
+    return jsonify(
+        status="healthy",
+        message="¡Hola desde un Pull Request verificado por CI en Azure DevOps!"
+    ), 200
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80)
